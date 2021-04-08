@@ -2,16 +2,16 @@ function getActiveChannelList()
 {
   const token = PropertiesService.getScriptProperties().getProperty("SLACK_TOKEN");
   const method= 'POST';
-  
+
   const payload = {
     token: token
   };
-  
+
   const params = {
     method,
     payload
   };
-  
+
   let response = UrlFetchApp.fetch('https://slack.com/api/channels.list', params);
   //Logger.log(response.getContentText());
   let res = JSON.parse(response.getContentText());
@@ -102,7 +102,7 @@ function getActiveChannelList()
       }
     } else {
       Logger.log("channels.history failed.");
-    }    
+    }
   });
   if (list.length > 0) {
     postSlack('先週30メッセージ以上会話があったチャンネルのリストです。\n先週どこでホットな会話が行われたかを知る参考にしてください。\n\n' + list.join('\n'), 'gas_test', 'kuma');
@@ -112,7 +112,7 @@ function getActiveChannelList()
 function getInactiveChannelList()
 {
   const token = PropertiesService.getScriptProperties().getProperty("SLACK_TOKEN");
-  
+
   var response = UrlFetchApp.fetch('https://slack.com/api/channels.list', {method: 'POST', payload: {token}});
   //Logger.log(response.getContentText());
   var res = JSON.parse(response.getContentText());
@@ -149,7 +149,7 @@ function getInactiveChannelList()
 }
 
 // 直近1ヶ月発言のないメンバーをスレッドからleaveさせる
-function kickChannelInactiveMembers(channelName) 
+function kickChannelInactiveMembers(channelName)
 {
   const token = PropertiesService.getScriptProperties().getProperty("SLACK_TOKEN");
 
@@ -170,7 +170,7 @@ function kickChannelInactiveMembers(channelName)
       channelId = channel.id
     }
   });
-  
+
   if (!channelId) {
     Logger.log('channel not found.');
     return;
@@ -181,7 +181,7 @@ function kickChannelInactiveMembers(channelName)
   Logger.log(`lastmonth_ts: ${lastmonth_ts}`);
 
   const talkUsers = {};
-  
+
   const _getUsersFromRes = (_res) => {
     Logger.log(`message length: ${_res.messages.length}`);
     res.messages.forEach(message => {
@@ -218,15 +218,15 @@ function kickChannelInactiveMembers(channelName)
       } else {
         Logger.log(`conversations.history failed. ${JSON.stringify(res)}`);
         return;
-      }     
+      }
     }
   } else {
     Logger.log(`conversations.history failed. ${JSON.stringify(res)}`);
     return;
   }
-  
+
   Logger.log(`talkUsers: ${JSON.stringify(talkUsers)}`);
-  
+
   // chのメンバー取得
   Utilities.sleep(1000); // APIのrate limitを回避する
   // https://api.slack.com/methods/conversations.members
@@ -263,6 +263,6 @@ function kickChannelInactiveMembers(channelName)
 
 function kickInactiveMembers()
 {
-  // slackのchannnel名を指定
-  kickInactiveMembers("gas_test");
+  // slackのchannel名を指定
+  kickChannelInactiveMembers("gas_test");
 }
